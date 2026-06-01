@@ -1,6 +1,7 @@
 # KITea
 
-Spill your tea about the modules ☕
+A vibe-coded module review platform for KIT students to share and discover honest reviews about their courses. Spill your tea about the modules ☕
+
 Made by students, for students.
 
 ## What you get
