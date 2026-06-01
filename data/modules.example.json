@@ -1,0 +1,21 @@
+{
+  "semester": {
+    "name": "Wintersemester",
+    "year": 2025
+  },
+  "modules": [
+    {
+      "moduleNumber": "MA-101",
+      "moduleName": "Linear Algebra I",
+      "description": "Introduction to linear algebra"
+    },
+    {
+      "moduleNumber": "CS-100",
+      "moduleName": "Programming Fundamentals"
+    },
+    {
+      "moduleNumber": "2400123",
+      "moduleName": "Example campus LV number format"
+    }
+  ]
+}

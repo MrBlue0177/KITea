@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  studyProgram  String?
+
+  createdAt     DateTime  @default(now())
+
+  accounts Account[]
+  sessions Session[]
+  reviews  Review[]
+  helpfulVotes ReviewHelpful[]
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId String
+
+  refresh_token       String?
+  access_token        String?
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String?
+  session_state       String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Semester {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "Wintersemester", "Sommersemester"
+  year      Int
+  modules   Module[]
+  reviewsTaken Review[] @relation("SemesterTakenReviews")
+
+  @@unique([name, year])
+  @@index([name, year])
+}
+
+model Lecturer {
+  id      String   @id @default(cuid())
+  name    String
+
+  @@index([name])
+}
+
+model TA {
+  id      String   @id @default(cuid())
+  name    String
+
+  @@index([name])
+}
+
+model Module {
+  id           String   @id @default(cuid())
+  moduleNumber String   // e.g., "MA-101", "CS-201"
+  moduleName   String
+  description  String?
+  semesters    Semester[]
+  reviews      Review[]
+
+  @@unique([moduleNumber])
+  @@index([moduleNumber])
+  @@index([moduleName])
+}
+
+model Review {
+  id              String   @id @default(cuid())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
+  module          Module   @relation(fields: [moduleId], references: [id])
+  moduleId        String
+  semesterTaken   Semester @relation("SemesterTakenReviews", fields: [semesterTakenId], references: [id])
+  semesterTakenId String
+  lecturerName    String?      // Stored as text for flexibility, could also link to Lecturer model
+  lecturerReview  String?
+  taName          String?      // Stored as text for flexibility
+  taReview        String?
+  homeworkReview  String?
+  examReview      String?
+  summary         String?
+  overallRating   Decimal      @db.Decimal(2, 1) // Supports half values (e.g., 3.5)
+  difficultyRating Decimal     @db.Decimal(2, 1) // Supports half values
+  workloadRating  Decimal      @db.Decimal(2, 1) // Supports half values
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  helpfulVotes ReviewHelpful[]
+
+  @@unique([userId, moduleId, semesterTakenId], map: "user_module_semester_index")
+  @@index([moduleId])
+  @@index([createdAt])
+}
+
+model ReviewHelpful {
+  id        String   @id @default(cuid())
+  reviewId  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, userId])
+  @@index([reviewId])
+}
+
